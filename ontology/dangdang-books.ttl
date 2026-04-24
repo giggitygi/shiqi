@@ -1,0 +1,167 @@
+@prefix kg: <https://example.org/dangdang/kg/> .
+@prefix category: <https://example.org/dangdang/category/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+kg:Book a owl:Class ;
+  rdfs:label "图书"@zh .
+
+kg:Author a owl:Class ;
+  rdfs:label "作者"@zh .
+
+kg:Publisher a owl:Class ;
+  rdfs:label "出版社"@zh .
+
+kg:Category a owl:Class ;
+  rdfs:label "分类"@zh .
+
+kg:NovelCategory a owl:Class ;
+  rdfs:subClassOf kg:Category ;
+  rdfs:label "小说分类"@zh .
+
+kg:authoredBy a owl:ObjectProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range kg:Author ;
+  owl:inverseOf kg:wrote ;
+  rdfs:label "作者"@zh .
+
+kg:wrote a owl:ObjectProperty ;
+  rdfs:domain kg:Author ;
+  rdfs:range kg:Book ;
+  rdfs:label "写作"@zh .
+
+kg:publishedBy a owl:ObjectProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range kg:Publisher ;
+  owl:inverseOf kg:publishedBook ;
+  rdfs:label "出版社"@zh .
+
+kg:publishedBook a owl:ObjectProperty ;
+  rdfs:domain kg:Publisher ;
+  rdfs:range kg:Book ;
+  rdfs:label "出版图书"@zh .
+
+kg:inCategory a owl:ObjectProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range kg:NovelCategory ;
+  owl:inverseOf kg:hasBook ;
+  rdfs:label "所属分类"@zh .
+
+kg:hasBook a owl:ObjectProperty ;
+  rdfs:domain kg:NovelCategory ;
+  rdfs:range kg:Book ;
+  rdfs:label "包含图书"@zh .
+
+kg:broaderCategory a owl:ObjectProperty, owl:TransitiveProperty ;
+  rdfs:domain kg:Category ;
+  rdfs:range kg:Category ;
+  rdfs:label "上位分类"@zh .
+
+kg:relatedToCategory a owl:ObjectProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range kg:Category ;
+  rdfs:label "关联分类"@zh .
+
+kg:inCategory rdfs:subPropertyOf kg:relatedToCategory .
+
+kg:dangdangId a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:string .
+
+kg:title a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:string .
+
+kg:price a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:decimal .
+
+kg:ratingPercent a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "百分比评分"@zh .
+
+kg:commentsCount a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:integer .
+
+kg:publishedAtText a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:string .
+
+kg:detailUrl a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:anyURI .
+
+category:01.03.00.00.00.00 a kg:NovelCategory ;
+  rdfs:label "小说"@zh .
+
+category:01.03.32.00.00.00 a kg:NovelCategory ;
+  rdfs:label "中国古典小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.30.00.00.00 a kg:NovelCategory ;
+  rdfs:label "中国当代小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.31.00.00.00 a kg:NovelCategory ;
+  rdfs:label "中国近现代小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.35.00.00.00 a kg:NovelCategory ;
+  rdfs:label "外国小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.41.00.00.00 a kg:NovelCategory ;
+  rdfs:label "科幻小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.38.00.00.00 a kg:NovelCategory ;
+  rdfs:label "侦探/悬疑/推理"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.44.00.00.00 a kg:NovelCategory ;
+  rdfs:label "情感小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.40.00.00.00 a kg:NovelCategory ;
+  rdfs:label "魔幻小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.45.00.00.00 a kg:NovelCategory ;
+  rdfs:label "社会小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.42.00.00.00 a kg:NovelCategory ;
+  rdfs:label "武侠小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.39.00.00.00 a kg:NovelCategory ;
+  rdfs:label "惊悚/恐怖"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.51.00.00.00 a kg:NovelCategory ;
+  rdfs:label "历史小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.52.00.00.00 a kg:NovelCategory ;
+  rdfs:label "影视小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.50.00.00.00 a kg:NovelCategory ;
+  rdfs:label "官场小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.48.00.00.00 a kg:NovelCategory ;
+  rdfs:label "职场小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.49.00.00.00 a kg:NovelCategory ;
+  rdfs:label "财经小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .
+
+category:01.03.43.00.00.00 a kg:NovelCategory ;
+  rdfs:label "军事小说"@zh ;
+  kg:broaderCategory category:01.03.00.00.00.00 .

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>当当小说知识图谱问答</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="rail">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div>
+            <strong>NovelGraph</strong>
+            <small>Dangdang KGQA</small>
+          </div>
+        </div>
+        <nav class="nav-list" aria-label="示例问题">
+          <button data-question="余华写过哪些书">作者作品</button>
+          <button data-question="推荐几本中国当代小说">类别推荐</button>
+          <button data-question="最便宜的中国当代小说是哪本书">最低价格</button>
+          <button data-question="人民文学出版社出版过哪些小说">出版社查询</button>
+        </nav>
+        <section class="pipeline">
+          <span>Pipeline</span>
+          <ol>
+            <li>Dangdang Crawl</li>
+            <li>Book XML</li>
+            <li>N-Triples</li>
+            <li>GraphDB Reasoning</li>
+          </ol>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="hero">
+          <p class="eyebrow">GraphDB · SPARQL · RDF Reasoning</p>
+          <h1>面向当当小说栏目的知识图谱问答系统</h1>
+          <p class="lede">
+            支持作者、类别、价格、出版社和出版时间等问答。查询命中书籍后会返回当当详情页链接，便于继续跳转核验。
+          </p>
+        </header>
+
+        <section class="ask-panel" aria-label="知识问答">
+          <div class="input-wrap">
+            <input id="question" type="search" value="余华写过哪些书" aria-label="输入问题" />
+            <button id="askButton">查询</button>
+          </div>
+          <div class="status-row">
+            <span id="status">等待查询</span>
+            <label>
+              返回数量
+              <select id="limit">
+                <option>5</option>
+                <option selected>10</option>
+                <option>20</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="answer-grid">
+          <article class="answer-card">
+            <span class="section-label">Answer</span>
+            <h2 id="answer">输入问题后生成答案</h2>
+            <p id="intent">系统会自动识别问题意图并转换为 SPARQL。</p>
+          </article>
+          <article class="graph-card">
+            <span class="section-label">Reasoning Model</span>
+            <div class="graph-lines">
+              <span>Book</span>
+              <i>authoredBy ⇄ wrote</i>
+              <span>Author</span>
+              <i>publishedBy ⇄ publishedBook</i>
+              <span>Publisher</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="results-section">
+          <div class="section-heading">
+            <span class="section-label">Results</span>
+            <button id="toggleSparql">查看 SPARQL</button>
+          </div>
+          <div id="results" class="results"></div>
+          <pre id="sparql" class="sparql" hidden></pre>
+        </section>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
+

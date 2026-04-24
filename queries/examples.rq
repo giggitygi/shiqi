@@ -20,8 +20,9 @@ LIMIT 20
 SELECT ?book ?title ?authorLabel ?rating ?comments ?url WHERE {
   ?book a kg:Book ;
         kg:title ?title ;
-        kg:inCategory ?category .
-  ?category rdfs:label ?categoryLabel .
+        kg:inCategory ?bookCategory .
+  ?bookCategory kg:subCategoryOf* ?matchedCategory .
+  ?matchedCategory rdfs:label ?categoryLabel .
   OPTIONAL { ?book kg:authoredBy/rdfs:label ?authorLabel . }
   OPTIONAL { ?book kg:ratingPercent ?rating . }
   OPTIONAL { ?book kg:commentsCount ?comments . }
@@ -36,8 +37,9 @@ SELECT ?book ?title ?price ?rating ?comments ?url WHERE {
   ?book a kg:Book ;
         kg:title ?title ;
         kg:price ?price ;
-        kg:inCategory ?category .
-  ?category rdfs:label ?categoryLabel .
+        kg:inCategory ?bookCategory .
+  ?bookCategory kg:subCategoryOf* ?matchedCategory .
+  ?matchedCategory rdfs:label ?categoryLabel .
   OPTIONAL { ?book kg:ratingPercent ?rating . }
   OPTIONAL { ?book kg:commentsCount ?comments . }
   OPTIONAL { ?book kg:detailUrl ?url . }

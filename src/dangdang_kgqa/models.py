@@ -8,6 +8,9 @@ class Category:
     code: str
     name: str
     url: str
+    parent_code: str | None = None
+    parent_name: str | None = None
+    path_names: tuple[str, ...] = field(default_factory=tuple)
 
 
 @dataclass(frozen=True)
@@ -33,6 +36,7 @@ class BookRecord:
     comments_count: int | None = None
     category_code: str | None = None
     category_name: str | None = None
+    category_path: tuple[str, ...] = field(default_factory=tuple)
     url: str | None = None
 
 

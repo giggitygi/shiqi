@@ -11,6 +11,9 @@ def write_book_xml(book: BookRecord, target: Path) -> None:
     root = ET.Element("book", {"dangdang_id": book.dangdang_id})
     _add_text(root, "category_code", book.category_code)
     _add_text(root, "category_name", book.category_name)
+    path_node = ET.SubElement(root, "category_path")
+    for category_name in book.category_path:
+        _add_text(path_node, "category", category_name)
     _add_text(root, "title", book.title)
     _add_text(root, "price", f"{book.price:.2f}" if book.price is not None else None)
     authors_node = ET.SubElement(root, "authors")
@@ -32,6 +35,11 @@ def read_book_xml(source: Path) -> BookRecord:
     price_text = _child_text(root, "price")
     rating_text = _child_text(root, "rating_percent")
     comments_text = _child_text(root, "comments_count")
+    category_path = tuple(
+        node.text.strip()
+        for node in root.findall("./category_path/category")
+        if node.text and node.text.strip()
+    )
     return BookRecord(
         dangdang_id=root.attrib["dangdang_id"],
         title=_child_text(root, "title") or "",
@@ -43,6 +51,7 @@ def read_book_xml(source: Path) -> BookRecord:
         comments_count=int(comments_text) if comments_text else None,
         category_code=_child_text(root, "category_code") or None,
         category_name=_child_text(root, "category_name") or None,
+        category_path=category_path,
         url=_child_text(root, "url") or None,
     )
 

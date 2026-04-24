@@ -22,6 +22,7 @@ def sample_book() -> BookRecord:
         comments_count=107094,
         category_code="01.03.30.00.00.00",
         category_name="中国当代小说",
+        category_path=("小说", "中国当代小说"),
         url="https://product.dangdang.com/29587088.html",
     )
 
@@ -43,6 +44,11 @@ def test_book_to_graph_contains_core_relations():
     assert (book_uri, KG.ratingPercent, None) in graph
     assert (book_uri, KG.authoredBy, URIRef("https://example.org/dangdang/author/%E4%BD%99%E5%8D%8E")) in graph
     assert (book_uri, KG.inCategory, URIRef("https://example.org/dangdang/category/01.03.30.00.00.00")) in graph
+    assert (
+        URIRef("https://example.org/dangdang/category/01.03.30.00.00.00"),
+        KG.subCategoryOf,
+        URIRef("https://example.org/dangdang/category/01.03.00.00.00.00"),
+    ) in graph
 
 
 def test_export_xml_directory_to_nt(tmp_path: Path):

@@ -43,16 +43,24 @@ def parse_homepage_categories(page_html: str) -> list[Category]:
         if code not in seen:
             categories.append(Category(code=code, name=name, url=url))
             seen.add(code)
-    return categories
+    return _enrich_category_hierarchy(categories)
 
 
-def parse_category_page(page_html: str, category_name: str, category_code: str | None = None) -> CategoryPage:
+def parse_category_page(
+    page_html: str,
+    category_name: str,
+    category_code: str | None = None,
+    category_path: tuple[str, ...] | None = None,
+) -> CategoryPage:
     soup = BeautifulSoup(page_html, "html.parser")
     total_count = _parse_int_from_match(r"共\s*<em class=\"b\">(\d+)</em>\s*件商品", page_html)
     total_pages = _parse_int_from_match(
         r"<span class=\"or\">\s*\d+\s*</span>\s*<span>/(\d+)</span>", page_html
     )
-    books = [_parse_book_card(li, category_name, category_code) for li in soup.select("ul.bigimg > li")]
+    books = [
+        _parse_book_card(li, category_name, category_code, category_path)
+        for li in soup.select("ul.bigimg > li")
+    ]
     return CategoryPage(total_count=total_count, total_pages=total_pages, books=[book for book in books if book])
 
 
@@ -89,11 +97,17 @@ def merge_detail(book: BookRecord, detail: ProductDetail) -> BookRecord:
         comments_count=detail.comments_count if detail.comments_count is not None else book.comments_count,
         category_code=detail.category_code or book.category_code,
         category_name=detail.category_name or book.category_name,
+        category_path=book.category_path,
         url=book.url,
     )
 
 
-def _parse_book_card(li, category_name: str, category_code: str | None) -> BookRecord | None:
+def _parse_book_card(
+    li,
+    category_name: str,
+    category_code: str | None,
+    category_path: tuple[str, ...] | None,
+) -> BookRecord | None:
     title_anchor = li.select_one('p.name a[href*="product.dangdang.com"]') or li.select_one(
         'a[href*="product.dangdang.com"]'
     )
@@ -125,6 +139,7 @@ def _parse_book_card(li, category_name: str, category_code: str | None) -> BookR
         comments_count=comments_count,
         category_code=category_code,
         category_name=category_name,
+        category_path=category_path or ((category_name,) if category_name else tuple()),
         url=url,
     )
 
@@ -204,6 +219,55 @@ def _decode_json_string(value: str) -> str:
 
 def safe_uri_part(value: str) -> str:
     return quote(value.strip(), safe="")
+
+
+def _enrich_category_hierarchy(categories: list[Category]) -> list[Category]:
+    by_code = {category.code: category for category in categories}
+    memo: dict[str, tuple[str | None, str | None, tuple[str, ...]]] = {}
+
+    def resolve(code: str, stack: set[str] | None = None) -> tuple[str | None, str | None, tuple[str, ...]]:
+        stack = stack or set()
+        if code in memo:
+            return memo[code]
+        category = by_code[code]
+        parent_code = _category_parent_code(code)
+        parent = by_code.get(parent_code or "")
+        if not parent or parent.code in stack:
+            result = (None, None, (category.name,))
+        else:
+            _, _, parent_path = resolve(parent.code, stack | {code})
+            result = (parent.code, parent.name, parent_path + (category.name,))
+        memo[code] = result
+        return result
+
+    enriched: list[Category] = []
+    for category in categories:
+        parent_code, parent_name, path_names = resolve(category.code)
+        enriched.append(
+            Category(
+                code=category.code,
+                name=category.name,
+                url=category.url,
+                parent_code=parent_code,
+                parent_name=parent_name,
+                path_names=path_names,
+            )
+        )
+    return enriched
+
+
+def _category_parent_code(code: str) -> str | None:
+    parts = code.split(".")
+    if len(parts) != 6:
+        return None
+    for index in range(len(parts) - 1, 1, -1):
+        if parts[index] != "00":
+            parent = parts.copy()
+            parent[index] = "00"
+            for later in range(index + 1, len(parent)):
+                parent[later] = "00"
+            return ".".join(parent)
+    return None
 
 
 def category_code_from_url(url: str) -> str | None:

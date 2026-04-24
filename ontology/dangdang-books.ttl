@@ -54,6 +54,18 @@ kg:hasBook a owl:ObjectProperty ;
   rdfs:range kg:Book ;
   rdfs:label "包含图书"@zh .
 
+kg:subCategoryOf a owl:ObjectProperty, owl:TransitiveProperty ;
+  rdfs:domain kg:NovelCategory ;
+  rdfs:range kg:NovelCategory ;
+  rdfs:subPropertyOf kg:broaderCategory ;
+  owl:inverseOf kg:superCategoryOf ;
+  rdfs:label "子类属于"@zh .
+
+kg:superCategoryOf a owl:ObjectProperty ;
+  rdfs:domain kg:NovelCategory ;
+  rdfs:range kg:NovelCategory ;
+  rdfs:label "上位类包含"@zh .
+
 kg:broaderCategory a owl:ObjectProperty, owl:TransitiveProperty ;
   rdfs:domain kg:Category ;
   rdfs:range kg:Category ;

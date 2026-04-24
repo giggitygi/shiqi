@@ -79,8 +79,9 @@ SELECT ?book ?title ?price ?rating ?authorLabel ?publisherLabel ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title ;
         kg:price ?price ;
-        kg:inCategory ?category .
-  ?category rdfs:label ?categoryLabel .
+        kg:inCategory ?bookCategory .
+  ?bookCategory kg:subCategoryOf* ?matchedCategory .
+  ?matchedCategory rdfs:label ?categoryLabel .
   OPTIONAL {{ ?book kg:authoredBy/rdfs:label ?authorLabel . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
   OPTIONAL {{ ?book kg:publishedBy/rdfs:label ?publisherLabel . }}
@@ -99,8 +100,9 @@ LIMIT 1
 SELECT ?book ?title ?price ?rating ?authorLabel ?comments ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title ;
-        kg:inCategory ?category .
-  ?category rdfs:label ?categoryLabel .
+        kg:inCategory ?bookCategory .
+  ?bookCategory kg:subCategoryOf* ?matchedCategory .
+  ?matchedCategory rdfs:label ?categoryLabel .
   OPTIONAL {{ ?book kg:price ?price . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
   OPTIONAL {{ ?book kg:commentsCount ?comments . }}
@@ -142,10 +144,12 @@ SELECT ?book ?title ?publishedAt ?rating ?authorLabel ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title ;
         kg:publishedAtText ?publishedAt .
+  ?book kg:inCategory ?bookCategory .
+  ?bookCategory kg:subCategoryOf* ?matchedCategory .
+  ?matchedCategory rdfs:label ?categoryLabel .
   OPTIONAL {{ ?book kg:authoredBy/rdfs:label ?authorLabel . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
   OPTIONAL {{ ?book kg:detailUrl ?url . }}
-  OPTIONAL {{ ?book kg:inCategory/rdfs:label ?categoryLabel . }}
   FILTER(CONTAINS(STR(?publishedAt), "{year}") && CONTAINS(STR(?categoryLabel), "{category}"))
 }}
 ORDER BY ?title
@@ -178,6 +182,25 @@ LIMIT {limit}
 
 def _category_from_question(question: str) -> str:
     known = [
+        "世界名著",
+        "欧洲",
+        "美洲",
+        "亚洲",
+        "其他地区",
+        "四大名著",
+        "红楼梦",
+        "西游记",
+        "水浒",
+        "三国演义",
+        "作品集",
+        "美国",
+        "德国",
+        "英国",
+        "法国",
+        "日本",
+        "俄罗斯",
+        "韩国",
+        "其他国家",
         "中国古典小说",
         "中国当代小说",
         "中国近现代小说",

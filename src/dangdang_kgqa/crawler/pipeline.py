@@ -55,6 +55,7 @@ class DangdangCrawler:
                     self.client.fetch_text(page_url),
                     category_name=category.name,
                     category_code=category.code,
+                    category_path=category.path_names,
                 )
                 for book in category_page.books:
                     books_seen += 1
@@ -107,6 +108,7 @@ def categories_from_codes(codes: list[str], known_categories: list[Category]) ->
                     code=clean_code,
                     name=clean_code,
                     url=category_page_url(clean_code, 1),
+                    path_names=(clean_code,),
                 )
             )
     return categories
@@ -116,5 +118,4 @@ def category_from_url(name: str, url: str) -> Category:
     code = category_code_from_url(url)
     if not code:
         raise ValueError(f"Cannot parse category code from {url}")
-    return Category(code=code, name=name, url=url)
-
+    return Category(code=code, name=name, url=url, path_names=(name,))

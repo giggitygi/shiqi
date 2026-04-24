@@ -40,6 +40,47 @@ def test_parse_homepage_categories_extracts_novel_categories():
     ]
 
 
+def test_parse_homepage_categories_preserves_visible_and_popup_hierarchy():
+    html = """
+    <div class="sidemenu">
+      <div class="level_one">
+        <dl class="primary_dl">
+          <dt><a href="http://category.dangdang.com/cp01.03.56.00.00.00.html" title="世界名著">世界名著</a></dt>
+          <dd>
+            <a href="http://category.dangdang.com/cp01.03.56.01.00.00.html" title="欧洲">欧洲</a>
+            <a href="http://category.dangdang.com/cp01.03.56.03.00.00.html" title="美洲">美洲</a>
+          </dd>
+        </dl>
+      </div>
+      <div class="level_one">
+        <dl class="primary_dl">
+          <dt><a href="http://category.dangdang.com/cp01.03.35.00.00.00.html" title="外国小说">外国小说</a></dt>
+        </dl>
+        <div class="hide submenu">
+          <dl class="inner_dl">
+            <dt><a href="http://category.dangdang.com/cp01.03.35.02.00.00.html" title="美国">美国</a></dt>
+            <dd>
+              <a href="http://category.dangdang.com/cp01.03.35.03.00.00.html" title="德国">德国</a>
+              <a href="http://category.dangdang.com/cp01.03.35.01.00.00.html" title="英国">英国</a>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    """
+
+    by_name = {category.name: category for category in parse_homepage_categories(html)}
+
+    assert by_name["欧洲"].parent_code == "01.03.56.00.00.00"
+    assert by_name["欧洲"].parent_name == "世界名著"
+    assert by_name["欧洲"].path_names == ("世界名著", "欧洲")
+    assert by_name["美洲"].path_names == ("世界名著", "美洲")
+    assert by_name["美国"].parent_code == "01.03.35.00.00.00"
+    assert by_name["美国"].parent_name == "外国小说"
+    assert by_name["美国"].path_names == ("外国小说", "美国")
+    assert by_name["德国"].path_names == ("外国小说", "德国")
+
+
 def test_parse_category_page_extracts_book_cards_and_paging():
     html = (FIXTURES / "category_sample.html").read_text(encoding="utf-8")
 

@@ -35,3 +35,13 @@ def test_build_sparql_for_cheapest_category_orders_by_price():
     assert "kg:ratingPercent" in sparql
     assert "ORDER BY ASC(?price)" in sparql
     assert "LIMIT 1" in sparql
+
+
+def test_build_sparql_for_recommendation_uses_category_hierarchy():
+    classified = classify_question("推荐几本世界名著")
+
+    sparql = build_sparql(classified)
+
+    assert classified.slots["category"] == "世界名著"
+    assert "kg:subCategoryOf*" in sparql
+    assert "?matchedCategory rdfs:label ?categoryLabel" in sparql

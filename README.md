@@ -4,11 +4,11 @@
 
 ## 能力范围
 
-- 从当当小说频道抽取小说分类。
+- 从当当小说频道抽取小说分类，并保留“世界名著 > 欧洲”“外国小说 > 美国”等多层级关系。
 - 爬取分类页商品和详情页字段：类别、书名、价格、作者、出版社、出版时间、百分比评分、评论数、详情页链接。
 - 每本书保存为一个 XML 文件。
 - 将 XML 批量转换为 N-Triples，供 GraphDB 导入。
-- 通过 GraphDB SPARQL 查询支持作者作品、类别推荐、最低价、出版社、年份和模糊查询。
+- 通过 GraphDB SPARQL 查询支持作者作品、类别推荐、最低价、出版社、年份和模糊查询；类别查询会覆盖子类别。
 - FastAPI 提供问答接口，静态前端提供专业知识问答页面。
 
 ## 快速开始
@@ -67,6 +67,8 @@ http://127.0.0.1:8000
 .\.venv\Scripts\python.exe scripts/import_graphdb.py --repo dangdang-books --file ontology/dangdang-books.ttl --content-type text/turtle
 .\.venv\Scripts\python.exe scripts/import_graphdb.py --repo dangdang-books --file data/nt/books.nt --content-type application/n-triples
 ```
+
+分类层级会写入 XML 和 N-Triples，RDF 中使用 `kg:subCategoryOf` / `kg:superCategoryOf` 表达父子关系；GraphDB 推理开启后可以得到更多上位/下位分类关系。
 
 ## 20 万实体策略
 

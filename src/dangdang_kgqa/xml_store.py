@@ -23,6 +23,11 @@ def write_book_xml(book: BookRecord, target: Path) -> None:
     _add_text(root, "published_at", book.published_at)
     _add_text(root, "rating_percent", f"{book.rating_percent:g}" if book.rating_percent is not None else None)
     _add_text(root, "comments_count", str(book.comments_count) if book.comments_count is not None else None)
+    _add_text(root, "length", book.length)
+    _add_text(root, "brand", book.brand)
+    _add_text(root, "novel_type", book.novel_type)
+    _add_text(root, "series", book.series)
+    _add_text(root, "discount", book.discount)
     _add_text(root, "url", book.url)
     tree = ET.ElementTree(root)
     ET.indent(tree, space="  ")
@@ -52,6 +57,11 @@ def read_book_xml(source: Path) -> BookRecord:
         category_code=_child_text(root, "category_code") or None,
         category_name=_child_text(root, "category_name") or None,
         category_path=category_path,
+        length=_child_text(root, "length") or None,
+        brand=_child_text(root, "brand") or None,
+        novel_type=_child_text(root, "novel_type") or None,
+        series=_child_text(root, "series") or None,
+        discount=_child_text(root, "discount") or None,
         url=_child_text(root, "url") or None,
     )
 

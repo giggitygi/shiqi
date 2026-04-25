@@ -23,6 +23,11 @@ def sample_book() -> BookRecord:
         category_code="01.03.30.00.00.00",
         category_name="中国当代小说",
         category_path=("小说", "中国当代小说"),
+        length="中篇",
+        brand="新经典",
+        novel_type="推理",
+        series="河边系列",
+        discount="5-7折",
         url="https://product.dangdang.com/29587088.html",
     )
 
@@ -42,6 +47,11 @@ def test_book_to_graph_contains_core_relations():
 
     assert (book_uri, KG.title, None) in graph
     assert (book_uri, KG.ratingPercent, None) in graph
+    assert (book_uri, KG.length, None) in graph
+    assert (book_uri, KG.brand, None) in graph
+    assert (book_uri, KG.novelType, None) in graph
+    assert (book_uri, KG.series, None) in graph
+    assert (book_uri, KG.discount, None) in graph
     assert (book_uri, KG.authoredBy, URIRef("https://example.org/dangdang/author/%E4%BD%99%E5%8D%8E")) in graph
     assert (book_uri, KG.inCategory, URIRef("https://example.org/dangdang/category/01.03.30.00.00.00")) in graph
     assert (

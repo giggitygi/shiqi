@@ -7,7 +7,7 @@ from urllib.parse import quote, urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
-from dangdang_kgqa.models import BookRecord, Category, CategoryPage, ProductDetail
+from dangdang_kgqa.models import BookRecord, Category, CategoryPage, FilterOption, ProductDetail
 
 
 NOVEL_CODE_PATTERN = re.compile(r"cp(01\.03\.\d{2}\.\d{2}\.\d{2}\.\d{2})\.html", re.I)
@@ -21,8 +21,11 @@ def normalize_text(value: str | None) -> str:
 
 
 def absolute_url(url: str) -> str:
+    url = url.strip()
     if url.startswith("//"):
         return f"https:{url}"
+    if url.startswith("/"):
+        return urljoin("https://category.dangdang.com/", url)
     return urljoin("https://book.dangdang.com/", url)
 
 
@@ -46,11 +49,71 @@ def parse_homepage_categories(page_html: str) -> list[Category]:
     return _enrich_category_hierarchy(categories)
 
 
+def parse_filter_groups(page_html: str) -> dict[str, list[FilterOption]]:
+    soup = BeautifulSoup(page_html, "html.parser")
+    groups: dict[str, list[FilterOption]] = {}
+    for item in soup.select("li[dd_name]"):
+        group = normalize_text(item.get("dd_name")) or normalize_text(
+            item.select_one(".list_left").get("title") if item.select_one(".list_left") else ""
+        )
+        if not group:
+            continue
+        options: list[FilterOption] = []
+        for span in item.select(".list_right span"):
+            anchor = span.select_one("a[href]")
+            if not anchor:
+                continue
+            value = normalize_text(anchor.get("title")) or normalize_text(anchor.get_text())
+            href = normalize_text(anchor.get("href"))
+            if not value or value in {"更多", "确定", "取消"} or not href:
+                continue
+            options.append(
+                FilterOption(
+                    group=group,
+                    value=value,
+                    url=absolute_url(href.split("#", 1)[0]),
+                    rel=span.get("rel"),
+                )
+            )
+        if options:
+            groups[group] = options
+    return groups
+
+
+def parse_filter_categories(page_html: str, parent: Category | None = None) -> list[Category]:
+    categories: list[Category] = []
+    seen: set[str] = set()
+    for option in parse_filter_groups(page_html).get("分类", []):
+        code = category_code_from_url(option.url)
+        if not code or code in seen or (parent and code == parent.code):
+            continue
+        if parent:
+            category = Category(
+                code=code,
+                name=option.value,
+                url=option.url,
+                parent_code=parent.code,
+                parent_name=parent.name,
+                path_names=(parent.name, option.value),
+            )
+        else:
+            category = Category(
+                code=code,
+                name=option.value,
+                url=option.url,
+                path_names=(option.value,),
+            )
+        categories.append(category)
+        seen.add(code)
+    return categories
+
+
 def parse_category_page(
     page_html: str,
     category_name: str,
     category_code: str | None = None,
     category_path: tuple[str, ...] | None = None,
+    facets: dict[str, str] | None = None,
 ) -> CategoryPage:
     soup = BeautifulSoup(page_html, "html.parser")
     total_count = _parse_int_from_match(r"共\s*<em class=\"b\">(\d+)</em>\s*件商品", page_html)
@@ -58,7 +121,7 @@ def parse_category_page(
         r"<span class=\"or\">\s*\d+\s*</span>\s*<span>/(\d+)</span>", page_html
     )
     books = [
-        _parse_book_card(li, category_name, category_code, category_path)
+        _parse_book_card(li, category_name, category_code, category_path, facets or {})
         for li in soup.select("ul.bigimg > li")
     ]
     return CategoryPage(total_count=total_count, total_pages=total_pages, books=[book for book in books if book])
@@ -98,6 +161,11 @@ def merge_detail(book: BookRecord, detail: ProductDetail) -> BookRecord:
         category_code=detail.category_code or book.category_code,
         category_name=detail.category_name or book.category_name,
         category_path=book.category_path,
+        length=book.length,
+        brand=book.brand,
+        novel_type=book.novel_type,
+        series=book.series,
+        discount=book.discount,
         url=book.url,
     )
 
@@ -107,6 +175,7 @@ def _parse_book_card(
     category_name: str,
     category_code: str | None,
     category_path: tuple[str, ...] | None,
+    facets: dict[str, str],
 ) -> BookRecord | None:
     title_anchor = li.select_one('p.name a[href*="product.dangdang.com"]') or li.select_one(
         'a[href*="product.dangdang.com"]'
@@ -140,6 +209,11 @@ def _parse_book_card(
         category_code=category_code,
         category_name=category_name,
         category_path=category_path or ((category_name,) if category_name else tuple()),
+        length=facets.get("length"),
+        brand=facets.get("brand"),
+        novel_type=facets.get("novel_type"),
+        series=facets.get("series"),
+        discount=facets.get("discount"),
         url=url,
     )
 

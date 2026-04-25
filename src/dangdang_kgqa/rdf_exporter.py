@@ -34,6 +34,16 @@ def book_to_graph(book: BookRecord) -> Graph:
         graph.add((book_uri, KG.commentsCount, Literal(book.comments_count, datatype=XSD.integer)))
     if book.published_at:
         graph.add((book_uri, KG.publishedAtText, Literal(book.published_at)))
+    if book.length:
+        graph.add((book_uri, KG.length, Literal(book.length, lang="zh")))
+    if book.brand:
+        graph.add((book_uri, KG.brand, Literal(book.brand, lang="zh")))
+    if book.novel_type:
+        graph.add((book_uri, KG.novelType, Literal(book.novel_type, lang="zh")))
+    if book.series:
+        graph.add((book_uri, KG.series, Literal(book.series, lang="zh")))
+    if book.discount:
+        graph.add((book_uri, KG.discount, Literal(book.discount, lang="zh")))
     if book.category_code:
         path_codes = _category_path_codes(book.category_code, book.category_path)
         path_names = book.category_path or (book.category_name or book.category_code,)
@@ -113,6 +123,11 @@ def ontology_graph() -> Graph:
         KG.ratingPercent,
         KG.commentsCount,
         KG.publishedAtText,
+        KG.length,
+        KG.brand,
+        KG.novelType,
+        KG.series,
+        KG.discount,
     ):
         graph.add((prop, RDF.type, OWL.DatatypeProperty))
     return graph

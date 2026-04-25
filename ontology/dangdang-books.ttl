@@ -103,6 +103,31 @@ kg:publishedAtText a owl:DatatypeProperty ;
   rdfs:domain kg:Book ;
   rdfs:range xsd:string .
 
+kg:length a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:string ;
+  rdfs:label "篇幅"@zh .
+
+kg:brand a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:string ;
+  rdfs:label "品牌"@zh .
+
+kg:novelType a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:string ;
+  rdfs:label "小说类型"@zh .
+
+kg:series a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:string ;
+  rdfs:label "系列"@zh .
+
+kg:discount a owl:DatatypeProperty ;
+  rdfs:domain kg:Book ;
+  rdfs:range xsd:string ;
+  rdfs:label "折扣"@zh .
+
 kg:detailUrl a owl:DatatypeProperty ;
   rdfs:domain kg:Book ;
   rdfs:range xsd:anyURI .

@@ -11,6 +11,15 @@ class Category:
     parent_code: str | None = None
     parent_name: str | None = None
     path_names: tuple[str, ...] = field(default_factory=tuple)
+    facets: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class FilterOption:
+    group: str
+    value: str
+    url: str
+    rel: str | None = None
 
 
 @dataclass(frozen=True)
@@ -37,6 +46,11 @@ class BookRecord:
     category_code: str | None = None
     category_name: str | None = None
     category_path: tuple[str, ...] = field(default_factory=tuple)
+    length: str | None = None
+    brand: str | None = None
+    novel_type: str | None = None
+    series: str | None = None
+    discount: str | None = None
     url: str | None = None
 
 

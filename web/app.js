@@ -71,12 +71,14 @@ function renderResult(row) {
   const price = row.price ? `¥${row.price}` : "价格未知";
   const rating = row.rating ? `评分 ${row.rating}%` : "评分未知";
   const comments = row.comments ? `${row.comments} 条评论` : "评论数未知";
+  const facets = [row.length, row.brand, row.novelType, row.series, row.discount].filter(Boolean);
+  const facetText = facets.length ? ` · ${facets.map(escapeHtml).join(" · ")}` : "";
   const url = row.url || row.book || "#";
   return `
     <article class="result">
       <div>
         <h3>${escapeHtml(title)}</h3>
-        <p>${escapeHtml(author)} · ${escapeHtml(publisher)} · ${escapeHtml(price)} · ${escapeHtml(rating)} · ${escapeHtml(comments)}</p>
+        <p>${escapeHtml(author)} · ${escapeHtml(publisher)} · ${escapeHtml(price)} · ${escapeHtml(rating)} · ${escapeHtml(comments)}${facetText}</p>
       </div>
       <a href="${escapeAttr(url)}" target="_blank" rel="noreferrer">详情页</a>
     </article>

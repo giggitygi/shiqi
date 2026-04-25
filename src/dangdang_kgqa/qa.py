@@ -54,7 +54,7 @@ def build_sparql(classified: ClassifiedQuestion, limit: int = 10) -> str:
         return (
             PREFIXES
             + f"""
-SELECT ?book ?title ?price ?rating ?publisherLabel ?comments ?url WHERE {{
+SELECT ?book ?title ?price ?rating ?publisherLabel ?comments ?length ?brand ?novelType ?series ?discount ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title ;
         kg:authoredBy ?author .
@@ -62,6 +62,11 @@ SELECT ?book ?title ?price ?rating ?publisherLabel ?comments ?url WHERE {{
   OPTIONAL {{ ?book kg:price ?price . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
   OPTIONAL {{ ?book kg:commentsCount ?comments . }}
+  OPTIONAL {{ ?book kg:length ?length . }}
+  OPTIONAL {{ ?book kg:brand ?brand . }}
+  OPTIONAL {{ ?book kg:novelType ?novelType . }}
+  OPTIONAL {{ ?book kg:series ?series . }}
+  OPTIONAL {{ ?book kg:discount ?discount . }}
   OPTIONAL {{ ?book kg:detailUrl ?url . }}
   OPTIONAL {{ ?book kg:publishedBy/rdfs:label ?publisherLabel . }}
   FILTER(CONTAINS(LCASE(STR(?authorLabel)), LCASE("{author}")))
@@ -75,7 +80,7 @@ LIMIT {limit}
         return (
             PREFIXES
             + f"""
-SELECT ?book ?title ?price ?rating ?authorLabel ?publisherLabel ?url WHERE {{
+SELECT ?book ?title ?price ?rating ?authorLabel ?publisherLabel ?length ?brand ?novelType ?series ?discount ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title ;
         kg:price ?price ;
@@ -84,6 +89,11 @@ SELECT ?book ?title ?price ?rating ?authorLabel ?publisherLabel ?url WHERE {{
   ?matchedCategory rdfs:label ?categoryLabel .
   OPTIONAL {{ ?book kg:authoredBy/rdfs:label ?authorLabel . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
+  OPTIONAL {{ ?book kg:length ?length . }}
+  OPTIONAL {{ ?book kg:brand ?brand . }}
+  OPTIONAL {{ ?book kg:novelType ?novelType . }}
+  OPTIONAL {{ ?book kg:series ?series . }}
+  OPTIONAL {{ ?book kg:discount ?discount . }}
   OPTIONAL {{ ?book kg:publishedBy/rdfs:label ?publisherLabel . }}
   OPTIONAL {{ ?book kg:detailUrl ?url . }}
   FILTER(CONTAINS(STR(?categoryLabel), "{category}"))
@@ -97,7 +107,7 @@ LIMIT 1
         return (
             PREFIXES
             + f"""
-SELECT ?book ?title ?price ?rating ?authorLabel ?comments ?url WHERE {{
+SELECT ?book ?title ?price ?rating ?authorLabel ?comments ?length ?brand ?novelType ?series ?discount ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title ;
         kg:inCategory ?bookCategory .
@@ -106,6 +116,11 @@ SELECT ?book ?title ?price ?rating ?authorLabel ?comments ?url WHERE {{
   OPTIONAL {{ ?book kg:price ?price . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
   OPTIONAL {{ ?book kg:commentsCount ?comments . }}
+  OPTIONAL {{ ?book kg:length ?length . }}
+  OPTIONAL {{ ?book kg:brand ?brand . }}
+  OPTIONAL {{ ?book kg:novelType ?novelType . }}
+  OPTIONAL {{ ?book kg:series ?series . }}
+  OPTIONAL {{ ?book kg:discount ?discount . }}
   OPTIONAL {{ ?book kg:authoredBy/rdfs:label ?authorLabel . }}
   OPTIONAL {{ ?book kg:detailUrl ?url . }}
   FILTER(CONTAINS(STR(?categoryLabel), "{category}"))
@@ -119,13 +134,18 @@ LIMIT {limit}
         return (
             PREFIXES
             + f"""
-SELECT ?book ?title ?price ?rating ?authorLabel ?url WHERE {{
+SELECT ?book ?title ?price ?rating ?authorLabel ?length ?brand ?novelType ?series ?discount ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title ;
         kg:publishedBy ?publisher .
   ?publisher rdfs:label ?publisherLabel .
   OPTIONAL {{ ?book kg:price ?price . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
+  OPTIONAL {{ ?book kg:length ?length . }}
+  OPTIONAL {{ ?book kg:brand ?brand . }}
+  OPTIONAL {{ ?book kg:novelType ?novelType . }}
+  OPTIONAL {{ ?book kg:series ?series . }}
+  OPTIONAL {{ ?book kg:discount ?discount . }}
   OPTIONAL {{ ?book kg:authoredBy/rdfs:label ?authorLabel . }}
   OPTIONAL {{ ?book kg:detailUrl ?url . }}
   FILTER(CONTAINS(STR(?publisherLabel), "{publisher}"))
@@ -140,7 +160,7 @@ LIMIT {limit}
         return (
             PREFIXES
             + f"""
-SELECT ?book ?title ?publishedAt ?rating ?authorLabel ?url WHERE {{
+SELECT ?book ?title ?publishedAt ?rating ?authorLabel ?length ?brand ?novelType ?series ?discount ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title ;
         kg:publishedAtText ?publishedAt .
@@ -149,6 +169,11 @@ SELECT ?book ?title ?publishedAt ?rating ?authorLabel ?url WHERE {{
   ?matchedCategory rdfs:label ?categoryLabel .
   OPTIONAL {{ ?book kg:authoredBy/rdfs:label ?authorLabel . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
+  OPTIONAL {{ ?book kg:length ?length . }}
+  OPTIONAL {{ ?book kg:brand ?brand . }}
+  OPTIONAL {{ ?book kg:novelType ?novelType . }}
+  OPTIONAL {{ ?book kg:series ?series . }}
+  OPTIONAL {{ ?book kg:discount ?discount . }}
   OPTIONAL {{ ?book kg:detailUrl ?url . }}
   FILTER(CONTAINS(STR(?publishedAt), "{year}") && CONTAINS(STR(?categoryLabel), "{category}"))
 }}
@@ -160,13 +185,18 @@ LIMIT {limit}
     return (
         PREFIXES
         + f"""
-SELECT ?book ?title ?price ?rating ?authorLabel ?categoryLabel ?url WHERE {{
+SELECT ?book ?title ?price ?rating ?authorLabel ?categoryLabel ?length ?brand ?novelType ?series ?discount ?url WHERE {{
   ?book a kg:Book ;
         kg:title ?title .
   OPTIONAL {{ ?book kg:price ?price . }}
   OPTIONAL {{ ?book kg:ratingPercent ?rating . }}
   OPTIONAL {{ ?book kg:authoredBy/rdfs:label ?authorLabel . }}
   OPTIONAL {{ ?book kg:inCategory/rdfs:label ?categoryLabel . }}
+  OPTIONAL {{ ?book kg:length ?length . }}
+  OPTIONAL {{ ?book kg:brand ?brand . }}
+  OPTIONAL {{ ?book kg:novelType ?novelType . }}
+  OPTIONAL {{ ?book kg:series ?series . }}
+  OPTIONAL {{ ?book kg:discount ?discount . }}
   OPTIONAL {{ ?book kg:detailUrl ?url . }}
   FILTER(
     CONTAINS(LCASE(STR(?title)), LCASE("{keyword}")) ||

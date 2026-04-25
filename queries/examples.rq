@@ -2,7 +2,7 @@ PREFIX kg: <https://example.org/dangdang/kg/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 # 余华写过哪些书
-SELECT ?book ?title ?price ?rating ?comments ?url WHERE {
+SELECT ?book ?title ?price ?rating ?comments ?length ?brand ?novelType ?series ?discount ?url WHERE {
   ?book a kg:Book ;
         kg:title ?title ;
         kg:authoredBy ?author .
@@ -10,6 +10,11 @@ SELECT ?book ?title ?price ?rating ?comments ?url WHERE {
   OPTIONAL { ?book kg:price ?price . }
   OPTIONAL { ?book kg:ratingPercent ?rating . }
   OPTIONAL { ?book kg:commentsCount ?comments . }
+  OPTIONAL { ?book kg:length ?length . }
+  OPTIONAL { ?book kg:brand ?brand . }
+  OPTIONAL { ?book kg:novelType ?novelType . }
+  OPTIONAL { ?book kg:series ?series . }
+  OPTIONAL { ?book kg:discount ?discount . }
   OPTIONAL { ?book kg:detailUrl ?url . }
   FILTER(CONTAINS(STR(?authorLabel), "余华"))
 }
@@ -17,7 +22,7 @@ ORDER BY ?title
 LIMIT 20
 
 # 推荐几本中国当代小说
-SELECT ?book ?title ?authorLabel ?rating ?comments ?url WHERE {
+SELECT ?book ?title ?authorLabel ?rating ?comments ?length ?brand ?novelType ?series ?discount ?url WHERE {
   ?book a kg:Book ;
         kg:title ?title ;
         kg:inCategory ?bookCategory .
@@ -26,6 +31,11 @@ SELECT ?book ?title ?authorLabel ?rating ?comments ?url WHERE {
   OPTIONAL { ?book kg:authoredBy/rdfs:label ?authorLabel . }
   OPTIONAL { ?book kg:ratingPercent ?rating . }
   OPTIONAL { ?book kg:commentsCount ?comments . }
+  OPTIONAL { ?book kg:length ?length . }
+  OPTIONAL { ?book kg:brand ?brand . }
+  OPTIONAL { ?book kg:novelType ?novelType . }
+  OPTIONAL { ?book kg:series ?series . }
+  OPTIONAL { ?book kg:discount ?discount . }
   OPTIONAL { ?book kg:detailUrl ?url . }
   FILTER(CONTAINS(STR(?categoryLabel), "中国当代小说"))
 }
@@ -33,7 +43,7 @@ ORDER BY DESC(?comments)
 LIMIT 10
 
 # 最便宜的中国当代小说是哪本书
-SELECT ?book ?title ?price ?rating ?comments ?url WHERE {
+SELECT ?book ?title ?price ?rating ?comments ?length ?brand ?novelType ?series ?discount ?url WHERE {
   ?book a kg:Book ;
         kg:title ?title ;
         kg:price ?price ;
@@ -42,6 +52,11 @@ SELECT ?book ?title ?price ?rating ?comments ?url WHERE {
   ?matchedCategory rdfs:label ?categoryLabel .
   OPTIONAL { ?book kg:ratingPercent ?rating . }
   OPTIONAL { ?book kg:commentsCount ?comments . }
+  OPTIONAL { ?book kg:length ?length . }
+  OPTIONAL { ?book kg:brand ?brand . }
+  OPTIONAL { ?book kg:novelType ?novelType . }
+  OPTIONAL { ?book kg:series ?series . }
+  OPTIONAL { ?book kg:discount ?discount . }
   OPTIONAL { ?book kg:detailUrl ?url . }
   FILTER(CONTAINS(STR(?categoryLabel), "中国当代小说"))
 }

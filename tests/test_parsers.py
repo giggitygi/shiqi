@@ -3,10 +3,12 @@ from pathlib import Path
 from dangdang_kgqa.crawler.parsers import (
     merge_detail,
     parse_category_page,
+    parse_filter_categories,
+    parse_filter_groups,
     parse_homepage_categories,
     parse_product_detail,
 )
-from dangdang_kgqa.models import BookRecord, ProductDetail
+from dangdang_kgqa.models import BookRecord, Category, ProductDetail
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -81,10 +83,94 @@ def test_parse_homepage_categories_preserves_visible_and_popup_hierarchy():
     assert by_name["德国"].path_names == ("外国小说", "德国")
 
 
+def test_parse_filter_categories_extracts_top_level_search_categories():
+    html = """
+    <li dd_name="分类" raw_h="35" class="child_li">
+      <div class="list_left" title="分类">分类</div>
+      <div class="list_right">
+        <div class="list_content fix_list">
+          <span><a href="/cp01.03.30.00.00.00.html" title="中国当代小说">中国当代小说</a></span>
+          <span><a href="/cp01.03.35.00.00.00.html" title="外国小说">外国小说</a></span>
+        </div>
+      </div>
+    </li>
+    """
+
+    categories = parse_filter_categories(html)
+
+    assert [category.name for category in categories] == ["中国当代小说", "外国小说"]
+    assert categories[0].code == "01.03.30.00.00.00"
+    assert categories[0].path_names == ("中国当代小说",)
+    assert categories[0].url == "https://category.dangdang.com/cp01.03.30.00.00.00.html"
+
+
+def test_parse_filter_categories_extracts_second_level_search_categories():
+    parent = Category(
+        code="01.03.35.00.00.00",
+        name="外国小说",
+        url="https://category.dangdang.com/cp01.03.35.00.00.00.html",
+        path_names=("外国小说",),
+    )
+    html = """
+    <li dd_name="分类" raw_h="35" class="child_li">
+      <div class="list_left" title="分类">分类</div>
+      <div class="list_right">
+        <span><a href="/cp01.03.35.07.00.00.html" title="日本">日本</a></span>
+        <span><a href="/cp01.03.35.02.00.00.html" title="美国">美国</a></span>
+      </div>
+    </li>
+    """
+
+    categories = parse_filter_categories(html, parent=parent)
+
+    assert [category.name for category in categories] == ["日本", "美国"]
+    assert categories[0].parent_code == "01.03.35.00.00.00"
+    assert categories[0].parent_name == "外国小说"
+    assert categories[0].path_names == ("外国小说", "日本")
+
+
+def test_parse_filter_groups_extracts_book_facets():
+    html = """
+    <li dd_name="篇幅"><div class="list_left" title="篇幅">篇幅</div>
+      <div class="list_right"><span rel="1"><a href="/cp01.03.00.00.00.00-a1000770%3A1.html" title="长篇">长篇</a></span></div>
+    </li>
+    <li dd_name="品牌"><div class="list_left" title="品牌">品牌</div>
+      <div class="list_right"><span rel="509"><a href="/cp01.03.00.00.00.00-a1000002%3A509.html" title="作家榜经典">作家榜经典</a></span></div>
+    </li>
+    <li dd_name="小说类型"><div class="list_left" title="小说类型">小说类型</div>
+      <div class="list_right"><span rel="11"><a href="/cp01.03.00.00.00.00-a1000773%3A11.html" title="推理">推理</a></span></div>
+    </li>
+    <li dd_name="系列"><div class="list_left" title="系列">系列</div>
+      <div class="list_right"><span rel="14"><a href="/cp01.03.00.00.00.00-a1000060%3A14.html" title="盗墓笔记系列">盗墓笔记系列</a></span></div>
+    </li>
+    <li dd_name="折扣"><div class="list_left" title="折扣">折扣</div>
+      <div class="list_right"><span rel="1"><a href="/cp01.03.00.00.00.00-ld3-hd5.html" title="3-5折">3-5折</a></span></div>
+    </li>
+    """
+
+    groups = parse_filter_groups(html)
+
+    assert groups["篇幅"][0].value == "长篇"
+    assert groups["品牌"][0].value == "作家榜经典"
+    assert groups["小说类型"][0].value == "推理"
+    assert groups["系列"][0].value == "盗墓笔记系列"
+    assert groups["折扣"][0].url == "https://category.dangdang.com/cp01.03.00.00.00.00-ld3-hd5.html"
+
+
 def test_parse_category_page_extracts_book_cards_and_paging():
     html = (FIXTURES / "category_sample.html").read_text(encoding="utf-8")
 
-    page = parse_category_page(html, category_name="中国当代小说")
+    page = parse_category_page(
+        html,
+        category_name="中国当代小说",
+        facets={
+            "length": "长篇",
+            "brand": "博集天卷",
+            "novel_type": "现实",
+            "series": "春天系列",
+            "discount": "5-7折",
+        },
+    )
 
     assert page.total_count == 245011
     assert page.total_pages == 100
@@ -99,6 +185,11 @@ def test_parse_category_page_extracts_book_cards_and_paging():
     assert book.rating_percent == 90.0
     assert book.comments_count == 151053
     assert book.category_name == "中国当代小说"
+    assert book.length == "长篇"
+    assert book.brand == "博集天卷"
+    assert book.novel_type == "现实"
+    assert book.series == "春天系列"
+    assert book.discount == "5-7折"
     assert book.url == "https://product.dangdang.com/29914884.html"
 
 

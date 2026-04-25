@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from dangdang_kgqa.config import settings
-from dangdang_kgqa.crawler.pipeline import DangdangCrawler, categories_from_codes
+from dangdang_kgqa.crawler.pipeline import DEFAULT_FACET_GROUPS, DangdangCrawler, categories_from_codes
 
 
 def main() -> None:
@@ -16,10 +16,29 @@ def main() -> None:
     parser.add_argument("--max-books", type=int, default=100, help="Maximum books to write. Use 0 for no limit.")
     parser.add_argument("--xml-dir", type=Path, default=settings.xml_dir)
     parser.add_argument("--no-details", action="store_true", help="Skip product detail pages.")
+    parser.add_argument("--no-resume", action="store_true", help="Ignore crawl_state.json and existing XML files.")
+    parser.add_argument(
+        "--facet-group",
+        action="append",
+        default=[],
+        help="Expand crawl tasks with a filter group, e.g. 篇幅, 品牌, 小说类型, 系列, 折扣.",
+    )
+    parser.add_argument(
+        "--all-facets",
+        action="store_true",
+        help="Expand crawl tasks with 篇幅, 品牌, 小说类型, 系列 and 折扣 filter pages.",
+    )
+    parser.add_argument(
+        "--state-file",
+        type=Path,
+        default=None,
+        help="Resume state file. Defaults to <xml-dir>/crawl_state.json.",
+    )
     args = parser.parse_args()
 
     crawler = DangdangCrawler()
-    discovered = crawler.discover_categories()
+    facet_groups = DEFAULT_FACET_GROUPS if args.all_facets else tuple(args.facet_group)
+    discovered = crawler.discover_categories(facet_groups=facet_groups)
     categories = categories_from_codes(args.category_code, discovered) if args.category_code else discovered
     if args.full:
         args.max_pages_per_category = max(args.max_pages_per_category, 100)
@@ -36,6 +55,8 @@ def main() -> None:
         max_pages_per_category=args.max_pages_per_category,
         max_books=max_books,
         include_details=not args.no_details,
+        resume=not args.no_resume,
+        state_path=args.state_file,
     )
     print(
         f"categories={stats.categories_seen} books_seen={stats.books_seen} "
